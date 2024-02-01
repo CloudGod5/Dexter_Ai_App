@@ -32,6 +32,7 @@ const PdfRenderer = ({url}: PdfRendererProps) => {
 
                     <div className='flex items-center gap-1.5'>
                         <Input className='w-12 h-8' />
+                        <p className='text-zinc-700'></p>
                     </div>
                 </div>
             </div>
