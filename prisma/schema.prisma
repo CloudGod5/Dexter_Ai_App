@@ -9,15 +9,18 @@ generator client {
 }
 
 model User {
-  id    String @id @unique
+  id    String @id @unique //matches kinde user id
   email String @unique
 
-  File File[]
+  File    File[]
+  Message Message[]
 
   stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
   stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
-  stripePriceId          String?   @unique @map(name: "stripe_price_id")
+  stripePriceId          String?   @map(name: "stripe_price_id")
   stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
+
+  @@index([id], name: "user_id_index")
 }
 
 enum UploadStatus {
@@ -32,10 +35,31 @@ model File {
   name String
 
   uploadStatus UploadStatus @default(PENDING)
-  url          String
-  key          String
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  User         User?        @relation(fields: [userId], references: [id])
-  userId       String?
+
+  url      String
+  key      String
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+
+  @@index([userId], name: "file_userId_index")
+}
+
+model Message {
+  id   String @id @default(cuid())
+  text String @db.Text()
+
+  isUserMessage Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  File      File?    @relation(fields: [fileId], references: [id])
+  fileId    String?
+
+  @@index([userId, fileId], name: "message_userId_fileId_index")
 }
