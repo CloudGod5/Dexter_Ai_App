@@ -25,7 +25,8 @@ const BillingForm = ({
   subscriptionPlan,
 }: BillingFormProps) => {
   const { toast } = useToast()
-    //@ts-ignore
+  if(!subscriptionPlan) {return null}
+  //@ts-ignore
   const { mutate: createStripeSession, isLoading } =
     trpc.createStripeSession.useMutation({
       onSuccess: ({ url }) => {
