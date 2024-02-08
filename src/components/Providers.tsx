@@ -6,7 +6,7 @@ import { trpc } from "@/app/_trpc/client";
 import { httpBatchLink } from "@trpc/client";
 
 const Provider = ({children}: PropsWithChildren) => {
-    const domain = process.env.NEXT_PUBLIC_APP_URL;
+    const domain = process.env.VERCEL_URL || 'http://localhost:3000';
     const [queryClient] = useState(() => new QueryClient());
     const [trpcClient] = useState(() => trpc.createClient({
         links: [

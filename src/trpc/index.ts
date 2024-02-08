@@ -105,7 +105,7 @@ export const appRouter = router({
     async ({ ctx }) => {
       const { userId } = ctx
 
-      const billingUrl = absoluteUrl('http://localhost:3000/dashboard/billing')
+      const billingUrl = absoluteUrl(`${process.env.VERCEL_URL}/dashboard/billing`)
 
       if (!userId)
         throw new TRPCError({ code: 'UNAUTHORIZED' })
