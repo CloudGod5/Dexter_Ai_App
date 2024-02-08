@@ -1,11 +1,11 @@
-"use client";
-
+'use client';
 import { useRouter, useSearchParams } from "next/navigation";
 import { trpc } from "../_trpc/client";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import dynamic from "next/dynamic";
 
-const AuthCallbackPage = () => {
+const AuthCallbackPageContent = () => {
     const router = useRouter();
     console.log("callback page");
     const searchParams = useSearchParams();
@@ -32,6 +32,8 @@ const AuthCallbackPage = () => {
             </div>
         </div>
     )
-}
+};
+
+const AuthCallbackPage = dynamic(() => Promise.resolve(AuthCallbackPageContent), { ssr: false });
 
 export default AuthCallbackPage;
