@@ -16,9 +16,9 @@ import { PLANS } from '@/config/stripe'
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
     const { getUser } = getKindeServerSession()
-    const user = await getUser()
+    const user = getUser()
 
-    if (!user?.id || !user?.email)
+    if (!user.id || !user.email)
       throw new TRPCError({ code: 'UNAUTHORIZED' })
 
     const dbUser = await db.user.findFirst({

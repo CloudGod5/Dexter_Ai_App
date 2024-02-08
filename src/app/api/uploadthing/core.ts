@@ -9,17 +9,20 @@ import { PDFLoader } from 'langchain/document_loaders/fs/pdf'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { PineconeStore } from '@langchain/pinecone'
 import { pinecone } from '@/lib/pinecone'
+import { getUserSubscriptionPlan } from '@/lib/stripe'
+import { PLANS } from '@/config/stripe'
 
 const f = createUploadthing()
 
 const middleware = async () => {
   const { getUser } = getKindeServerSession()
-  const user = await getUser()
+  const user = getUser()
 
   if (!user || !user.id) throw new Error('Unauthorized')
 
+  const subscriptionPlan = await getUserSubscriptionPlan()
 
-  return { userId: user.id }
+  return { subscriptionPlan, userId: user.id }
 }
 
 const onUploadComplete = async ({
@@ -53,10 +56,39 @@ const onUploadComplete = async ({
 
   try {
     const response = await fetch(file.url)
+
     const blob = await response.blob()
+
     const loader = new PDFLoader(blob)
+
     const pageLevelDocs = await loader.load()
+
     const pagesAmt = pageLevelDocs.length
+
+    const { subscriptionPlan } = metadata
+    const { isSubscribed } = subscriptionPlan
+
+    const isProExceeded =
+      pagesAmt >
+      PLANS.find((plan) => plan.name === 'Pro')!.pagesPerPdf
+    const isFreeExceeded =
+      pagesAmt >
+      PLANS.find((plan) => plan.name === 'Free')!
+        .pagesPerPdf
+
+    if (
+      (isSubscribed && isProExceeded) ||
+      (!isSubscribed && isFreeExceeded)
+    ) {
+      await db.file.update({
+        data: {
+          uploadStatus: 'FAILED',
+        },
+        where: {
+          id: createdFile.id,
+        },
+      })
+    }
 
     // vectorize and index entire document
     const pineconeIndex = pinecone.Index('dexter-ai')
@@ -83,7 +115,7 @@ const onUploadComplete = async ({
       },
     })
   } catch (err) {
-    console.error(err)
+    console.error('err', err)
     await db.file.update({
       data: {
         uploadStatus: 'FAILED',

@@ -1,7 +1,7 @@
 import ChatWrapper from '@/components/chat/ChatWrapper'
 import PdfRenderer from '@/components/PdfRenderer'
 import { db } from '@/db'
-// import { getUserSubscriptionPlan } from '@/lib/stripe'
+import { getUserSubscriptionPlan } from '@/lib/stripe'
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 import { notFound, redirect } from 'next/navigation'
 
@@ -15,7 +15,7 @@ const Page = async ({ params }: PageProps) => {
   const { fileid } = params
 
   const { getUser } = getKindeServerSession()
-  const user = await getUser()
+  const user = getUser()
 
   if (!user || !user.id)
     redirect(`/auth-callback?origin=dashboard/${fileid}`)
@@ -29,7 +29,7 @@ const Page = async ({ params }: PageProps) => {
 
   if (!file) notFound()
 
-  // const plan = await getUserSubscriptionPlan()
+  const plan = await getUserSubscriptionPlan()
 
   return (
     <div className='flex-1 justify-between flex flex-col h-[calc(100vh-3.5rem)]'>
