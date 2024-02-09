@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -29,20 +29,9 @@ const UploadDropzone = ({
     useState<number>(0)
   const { toast } = useToast()
 
-  const [attempt, setAttempt] = useState(0);
   const { startUpload } = useUploadThing(
     isSubscribed ? 'proPlanUploader' : 'freePlanUploader'
-  );
-
-  useEffect(() => {
-    if (!startUpload && attempt < 3) {
-      setAttempt(attempt + 1);
-    }
-  }, [startUpload, attempt]);
-
-  if (!startUpload) {
-    return <div>Working on it...</div>;
-  }
+  )
 
   const { mutate: startPolling } = trpc.getFile.useMutation(
     {
