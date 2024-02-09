@@ -36,14 +36,16 @@ const onUploadComplete = async ({
     url: string
   }
 }) => {
+  console.log('file', file)
   const isFileExist = await db.file.findFirst({
     where: {
       key: file.key,
     },
   })
+  console.log('isFileExist', isFileExist)
 
   if (isFileExist) return
-
+  console.log('file', file)
   const createdFile = await db.file.create({
     data: {
       key: file.key,
@@ -53,6 +55,7 @@ const onUploadComplete = async ({
       uploadStatus: 'PROCESSING',
     },
   })
+  console.log('createdFile', createdFile)
 
   try {
     const response = await fetch(
