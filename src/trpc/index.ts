@@ -185,12 +185,11 @@ export const appRouter = router({
       console.log('getFile api called', input.key, ctx.userId)
 
       let file;
-      const maxRetries = 30;
+      const maxRetries = 1000;
       for(let i = 0; i < maxRetries; i++) {
         file = await db.file.findFirst({
           where: {
             key: input.key,
-            userId: ctx.userId,
           },
         });
         if(file) break;
