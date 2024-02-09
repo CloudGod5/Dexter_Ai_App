@@ -7,7 +7,6 @@ import {
   DialogTrigger,
 } from './ui/dialog'
 import { Button } from './ui/button'
-
 import Dropzone from 'react-dropzone'
 import { Cloud, File, Loader2 } from 'lucide-react'
 import { Progress } from './ui/progress'
@@ -33,10 +32,10 @@ const UploadDropzone = ({
     isSubscribed ? 'proPlanUploader' : 'freePlanUploader'
   )
 
-  const { mutate: startPolling } = trpc.getFile.useMutation(
+  const {mutate: startPolling} = trpc.getFile.useMutation(
     {
       onSuccess: (file) => {
-        console.log('file', file)
+        console.log('file', file.id)
         router.push(`/dashboard/${file.id}`)
       },
       retry: true,
@@ -68,7 +67,6 @@ const UploadDropzone = ({
 
         const progressInterval = startSimulatedProgress()
 
-        // handle file uploading
         const res = await startUpload(acceptedFile)
 
         if (!res) {
@@ -93,7 +91,7 @@ const UploadDropzone = ({
 
         clearInterval(progressInterval)
         setUploadProgress(100)
-
+        console.log('StartPolling file key', key)
         startPolling({ key })
       }}>
       {({ getRootProps, getInputProps, acceptedFiles }) => (

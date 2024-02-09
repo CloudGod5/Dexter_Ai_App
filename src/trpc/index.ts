@@ -15,6 +15,7 @@ import { PLANS } from '@/config/stripe'
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
+    console.log('authCallback api called')
     const { getUser } = getKindeServerSession()
     const user = getUser()
 
@@ -39,6 +40,7 @@ export const appRouter = router({
     return { success: true }
   }),
   getUserFiles: privateProcedure.query(async ({ ctx }) => {
+    console.log('getUserFiles api called')
     const { userId } = ctx
 
     return await db.file.findMany({
@@ -57,6 +59,7 @@ export const appRouter = router({
       })
   )
   .query(async ({ctx, input}) => {
+    console.log('getFileMessages api called')
     const {userId} = ctx;
     const {fileId, cursor} = input;
     const limit = input.limit ?? INFINITE_QUERY_LIMIT
@@ -103,6 +106,7 @@ export const appRouter = router({
 
   createStripeSession: privateProcedure.mutation(
     async ({ ctx }) => {
+      console.log('createStripeSession api called')
       const { userId } = ctx
 
       const billingUrl = absoluteUrl(`${process.env.VERCEL_URL}/dashboard/billing`)
@@ -154,7 +158,7 @@ export const appRouter = router({
             userId: userId,
           },
         })
-
+        console.log('createStripeSession api stripeSession', stripeSession)
       return { url: stripeSession.url }
     }
   ),
@@ -162,6 +166,7 @@ export const appRouter = router({
   getFileUploadStatus: privateProcedure
     .input(z.object({ fileId: z.string() }))
     .query(async ({ input, ctx }) => {
+      console.log('getFileUploadStatus api called')
       const file = await db.file.findFirst({
         where: {
           id: input.fileId,
@@ -170,13 +175,14 @@ export const appRouter = router({
       })
 
       if (!file) return { status: 'PENDING' as const }
-
+      console.log('getFileUploadStatus api file status', file.uploadStatus)
       return { status: file.uploadStatus, file}
     }),
 
   getFile: privateProcedure
     .input(z.object({ key: z.string() }))
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input, ctx }) => {
+      console.log('getFile api called', input.key, ctx.userId)
       const { userId } = ctx
 
       const file = await db.file.findFirst({
@@ -188,12 +194,14 @@ export const appRouter = router({
 
       if (!file) throw new TRPCError({ code: 'NOT_FOUND' })
 
+      console.log('getFile api file', file)
       return file
     }),
 
   deleteFile: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      console.log('deleteFile api called')
       const { userId } = ctx
 
       const file = await db.file.findFirst({
@@ -210,7 +218,7 @@ export const appRouter = router({
           id: input.id,
         },
       })
-
+      console.log('deleteFile api file', file)
       return file
     }),
 })
