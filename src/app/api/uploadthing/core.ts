@@ -6,11 +6,11 @@ import {
 } from 'uploadthing/next'
 
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf'
-import { OpenAIEmbeddings } from '@langchain/openai'
-import { PineconeStore } from '@langchain/pinecone'
-import { pinecone } from '@/lib/pinecone'
+import { OpenAIEmbeddings } from 'langchain/embeddings/openai'
 import { getUserSubscriptionPlan } from '@/lib/stripe'
 import { PLANS } from '@/config/stripe'
+import { pinecone } from '@/lib/pinecone'
+import { PineconeStore } from '@langchain/pinecone'
 
 const f = createUploadthing()
 
@@ -49,13 +49,15 @@ const onUploadComplete = async ({
       key: file.key,
       name: file.name,
       userId: metadata.userId,
-      url: file.url,
+      url: `https://uploadthing-prod-sea1.s3.us-west-2.amazonaws.com/${file.key}`,
       uploadStatus: 'PROCESSING',
     },
   })
 
   try {
-    const response = await fetch(file.url)
+    const response = await fetch(
+      `https://uploadthing-prod-sea1.s3.us-west-2.amazonaws.com/${file.key}`
+    )
 
     const blob = await response.blob()
 
@@ -90,7 +92,6 @@ const onUploadComplete = async ({
       })
     }
 
-    // vectorize and index entire document
     const pineconeIndex = pinecone.Index('dexter-ai')
 
     const embeddings = new OpenAIEmbeddings({
@@ -115,7 +116,6 @@ const onUploadComplete = async ({
       },
     })
   } catch (err) {
-    console.error('err', err)
     await db.file.update({
       data: {
         uploadStatus: 'FAILED',
