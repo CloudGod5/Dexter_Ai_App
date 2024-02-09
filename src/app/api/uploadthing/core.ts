@@ -17,17 +17,19 @@ const f = createUploadthing()
 const middleware = async () => {
   const { getUser } = getKindeServerSession()
   const user = getUser()
+  console.log('user', user)
 
   if (!user || !user.id) throw new Error('Unauthorized')
 
   const subscriptionPlan = await getUserSubscriptionPlan()
+  console.log('subscriptionPlan', subscriptionPlan)
 
   return { subscriptionPlan, userId: user.id }
 }
 
 const onUploadComplete = async ({
   metadata,
-  file,
+  file
 }: {
   metadata: Awaited<ReturnType<typeof middleware>>
   file: {
@@ -36,7 +38,6 @@ const onUploadComplete = async ({
     url: string
   }
 }) => {
-  console.log('file', file)
   const isFileExist = await db.file.findFirst({
     where: {
       key: file.key,
