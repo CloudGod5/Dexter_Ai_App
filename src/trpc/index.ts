@@ -179,22 +179,24 @@ export const appRouter = router({
       return { status: file.uploadStatus, file}
     }),
 
-  getFile: privateProcedure
+    getFile: privateProcedure
     .input(z.object({ key: z.string() }))
     .mutation(async ({ input, ctx }) => {
       console.log('getFile api called', input.key, ctx.userId)
-      const { userId } = ctx
 
-      const file = await db.file.findFirst({
-        where: {
-          key: input.key,
-          userId,
-        },
-      })
+      let file;
+      const maxRetries = 30;
+      for(let i = 0; i < maxRetries; i++) {
+        file = await db.file.findFirst({
+          where: {
+            key: input.key,
+            userId: ctx.userId,
+          },
+        });
+        if(file) break;
+      }
 
       if (!file) throw new TRPCError({ code: 'NOT_FOUND' })
-
-      console.log('getFile api file', file)
       return file
     }),
 
