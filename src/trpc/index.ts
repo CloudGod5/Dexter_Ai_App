@@ -190,6 +190,7 @@ export const appRouter = router({
         file = await db.file.findFirst({
           where: {
             key: input.key,
+            userId: ctx.userId,
           },
         });
         if(file) break;
