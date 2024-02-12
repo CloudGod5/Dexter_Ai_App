@@ -45,6 +45,7 @@ const onUploadComplete = async ({
   // })
 
   // if (isFileExist) return
+  console.log('creating file')
   let createdFile = await db.file.create({
     data: {
       key: file.key,
@@ -77,8 +78,7 @@ const onUploadComplete = async ({
       PLANS.find((plan) => plan.name === 'Pro')!.pagesPerPdf
     const isFreeExceeded =
       pagesAmt >
-      PLANS.find((plan) => plan.name === 'Free')!
-        .pagesPerPdf
+      PLANS.find((plan) => plan.name === 'Free')!.pagesPerPdf
 
     if (
       (isSubscribed && isProExceeded) ||
