@@ -71,8 +71,9 @@ const UploadDropzone = ({
         const res = await startUpload(acceptedFile)
 
         if (!res) {
+          console.log('unable to startUpload')
           return toast({
-            title: 'Something went wrong',
+            title: 'Something went wrong uploading the PDF',
             description: 'Please try again later',
             variant: 'destructive',
           })
@@ -84,7 +85,7 @@ const UploadDropzone = ({
 
         if (!key) {
           return toast({
-            title: 'Something went wrong',
+            title: 'Something went wrong returning PDF',
             description: 'Please try again later',
             variant: 'destructive',
           })

@@ -43,11 +43,9 @@ const onUploadComplete = async ({
       key: file.key,
     },
   })
-  console.log('isFileExist', isFileExist)
 
   if (isFileExist) return
-  console.log('file', file)
-  const createdFile = await db.file.create({
+  let createdFile = await db.file.create({
     data: {
       key: file.key,
       name: file.name,
@@ -56,6 +54,21 @@ const onUploadComplete = async ({
       uploadStatus: 'PROCESSING',
     },
   })
+  const isFileCreated = await db.file.findFirst({
+    where: {
+      key: file.key,
+    },
+  })
+  if (!isFileCreated) {
+  const createdFile = await db.file.create({
+    data: {
+      key: file.key,
+      name: file.name,
+      userId: metadata.userId,
+      url: `https://uploadthing-prod-sea1.s3.us-west-2.amazonaws.com/${file.key}`,
+      uploadStatus: 'PROCESSING',
+    },
+  })}
   console.log('createdFile', createdFile)
 
   try {

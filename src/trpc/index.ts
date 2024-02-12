@@ -182,15 +182,15 @@ export const appRouter = router({
     getFile: privateProcedure
     .input(z.object({ key: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      console.log('getFile api called', input.key, ctx.userId)
-
+      console.log('getFile api called')
+      const { userId } = ctx
       let file;
       const maxRetries = 1000;
       for(let i = 0; i < maxRetries; i++) {
         file = await db.file.findFirst({
           where: {
             key: input.key,
-            userId: ctx.userId,
+            userId
           },
         });
         if(file) break;
